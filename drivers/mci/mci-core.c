@@ -1690,6 +1690,9 @@ static int mci_card_probe(struct mci *mci)
 		rc = sd_send_if_cond(mci);
 		rc = sd_send_op_cond(mci);
 	}
+
+	// -------------------------------------------- Here we never get ---------------------------------------
+
 	printf("mci_card_probe: no_sd\n");
 	if (host->no_sd || rc == -ETIMEDOUT) {
 		/* If SD card initialization was skipped or if it timed out,
