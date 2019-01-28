@@ -1654,6 +1654,7 @@ static int mci_card_probe(struct mci *mci)
 		dev_err(&mci->dev, "no card inserted\n");
 		return -ENODEV;
 	}
+	printf("mci_card_probe: card inserted\n");
 
 	ret = regulator_enable(host->supply);
 	if (ret) {
@@ -1661,6 +1662,7 @@ static int mci_card_probe(struct mci *mci)
 			strerror(-ret));
 		return ret;
 	}
+	printf("mci_card_probe: regulator enabled\n");
 
 	/* start with a host interface reset */
 	rc = (host->init)(host, &mci->dev);
@@ -1668,11 +1670,13 @@ static int mci_card_probe(struct mci *mci)
 		dev_err(&mci->dev, "Cannot reset the SD/MMC interface\n");
 		goto on_error;
 	}
+	printf("mci_card_probe: interface reset\n");
 
 	mci_set_bus_width(mci, MMC_BUS_WIDTH_1);
 	/* according to the SD card spec the detection can happen at 400 kHz */
 	mci_set_clock(mci, 400000);
 
+	printf("mci_card_probe: speed set\n");
 	/* reset the card */
 	rc = mci_go_idle(mci);
 	if (rc) {
@@ -1680,27 +1684,32 @@ static int mci_card_probe(struct mci *mci)
 		goto on_error;
 	}
 
+	printf("mci_card_probe: card reset\n");
 	/* Check if this card can handle the "SD Card Physical Layer Specification 2.0" */
 	if (!host->no_sd) {
 		rc = sd_send_if_cond(mci);
 		rc = sd_send_op_cond(mci);
 	}
+	printf("mci_card_probe: no_sd\n");
 	if (host->no_sd || rc == -ETIMEDOUT) {
 		/* If SD card initialization was skipped or if it timed out,
 		 * we check for an MMC card */
 		dev_dbg(&mci->dev, "Card seems to be a MultiMediaCard\n");
 		rc = mmc_send_op_cond(mci);
 	}
+	printf("mci_card_probe: try as mmc\n");
 
 	if (rc)
 		goto on_error;
 
+	printf("mci_card_probe: check for dev\n");
 	if (host->devname) {
 		mci->cdevname = strdup(host->devname);
 	} else {
 		disknum = cdev_find_free_index("disk");
 		mci->cdevname = basprintf("disk%d", disknum);
 	}
+	printf("mci_card_probe: dev found\n");
 
 	rc = mci_startup(mci);
 	if (rc) {
@@ -1779,6 +1788,7 @@ int mci_detect_card(struct mci_host *host)
 	rc = mci_check_if_already_initialized(host->mci);
 	if (rc != 0)
 		return 0;
+	printf("mci_detect_card: already initialized, runninc card_probe\n");
 
 	return mci_card_probe(host->mci);
 }

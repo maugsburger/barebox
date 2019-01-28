@@ -524,6 +524,8 @@ static int bcm2835_mci_probe(struct device_d *hw_dev)
 	hw_dev->priv = host;
 	hw_dev->detect = bcm2835_mci_detect,
 
+	printf("bcm2835_mci_probe, caps = %x\n", host->mci.host_caps);
+
 	/*
 	 * The Arasan has a bugette whereby it may lose the content of
 	 * successive writes to registers that are within two SD-card clock

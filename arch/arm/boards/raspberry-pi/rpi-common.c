@@ -313,13 +313,16 @@ postconsole_initcall(rpi_clock_init);
 
 static int rpi_env_init(void)
 {
+	printf("rpi_env_init\n");
 	struct stat s;
 	const char *diskdev = "/dev/disk0.0";
 	int ret;
 
 	device_detect_by_name("mci0");
-
+	printf("pre-stat\n");
 	ret = stat(diskdev, &s);
+	printf("post-stat\n");
+
 	if (ret) {
 		printf("no %s. using default env\n", diskdev);
 		return 0;
